@@ -1,2 +1,2 @@
-# RecSys_group10
-Recommendation Systems group 10, third year bachelor's project Maastricht University
+# RecSys_group5
+Recommendation Systems group 5, third year bachelor's project Maastricht University
