@@ -11,10 +11,11 @@ KNN collaborative filtering users.
 
 Next:
 
-4. Group maker and aggression recommender: average (considering user rating mean) of individual predicted ratings. while (for every user u in a group g, every other user in g is in KNN_u and no group overlap?) maximizing group size. ILP?  
-5. Evaluate explanations.
+1. Group maker and aggression recommender: Random groups.
+2. Evaluate explanations.
 
 
 ## Questions for monday
 Explanations for KNN.  
-Group or individual explanation.
+Group or individual explanation.  
+How do we make groups.  
