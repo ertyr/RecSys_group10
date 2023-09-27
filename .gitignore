@@ -1,3 +1,4 @@
 zip/
 splitjobs/
 jobs.tsv
+__pycache__
