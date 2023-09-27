@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import pickle
 import pandas as pd
 
+from tools.Distance import distance, location_user
+
 
 class SimilaritySuperclass(ABC):
     @abstractmethod
@@ -74,9 +76,25 @@ class SimilaritySuperclassTest(SimilaritySuperclass):
         return 1.0
     def __userDirectionMatters__(self) -> bool:
         return False
+    
+class SimilaritySuperclassDistance(SimilaritySuperclass):
+    def __init__(self, file: str, serialized_file_name: str = None) -> None:
+        super().__init__(file, serialized_file_name)
+    def __similarityUserAToUserB__(self, user_A:pd.DataFrame, user_B:pd.DataFrame) -> float:
+        d = distance(location_a=location_user(user_A), location_b=location_user(user_B))
+        max_distance = 40075
+        return 1 - d / max_distance
+    def __userDirectionMatters__(self) -> bool:
+        return False
 
-def demo():
+def demo1():
     df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
     max_demo_index = 100
     df = df.iloc[range(max_demo_index)]
     SimilaritySuperclassTest(df, "DEMO")
+
+def demo2():
+    df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
+    max_demo_index = 10
+    df = df.iloc[range(max_demo_index)]
+    SimilaritySuperclassDistance(df, "DEMO")

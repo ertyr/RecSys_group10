@@ -11,7 +11,7 @@ def location_user(user: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a pandas.DataFrame containing information about the location of the user
     """ 
-    return pgeocode.Nominatim(user['Country']).query_postal_code(user['ZipCode'])
+    return pgeocode.Nominatim(user.iloc[0]['Country']).query_postal_code(user.iloc[0]['ZipCode'])
 
 def location_job(job: pd.DataFrame) -> pd.DataFrame:
     """Location of a job
@@ -22,7 +22,7 @@ def location_job(job: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a pandas.DataFrame containing information about the location of the job
     """    
-    return pgeocode.Nominatim(job['Country']).query_postal_code(job['Zip5'])
+    return pgeocode.Nominatim(job.iloc[0]['Country']).query_postal_code(job.iloc[0]['Zip5'])
     
 R = 6373.0 # radius of the earth
 def distance(location_a: pd.DataFrame, location_b: pd.DataFrame) -> float:
