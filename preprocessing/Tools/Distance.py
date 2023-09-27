@@ -1,10 +1,14 @@
 from math import atan2, cos, sin, sqrt
 import pandas as pd
 import pgeocode
+from pgeocode import Nominatim
 
+ns: dict[str, Nominatim] = {}
 class Location:
     def __init__(self, country:str, zip_code:int) -> None:
-        self.loc = pgeocode.Nominatim(country).query_postal_code(zip_code)
+        if not country in ns.keys():
+            ns[country] = pgeocode.Nominatim(country)
+        self.loc = ns[country].query_postal_code(zip_code)
     def country_code(self) -> str:
         return self.loc['country_code']
     def postal_code(self) -> int:
