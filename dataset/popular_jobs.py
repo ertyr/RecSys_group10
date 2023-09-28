@@ -52,7 +52,7 @@ with open(wd + "users.tsv", "r") as infile:
     quoting=csv.QUOTE_NONE, quotechar="")
     next(reader) # burn the header
     with open("popular_jobs_full.csv", "w") as outfile:
-        outfile.write("UserId, JobIds\n")
+        outfile.write("UserId,JobIds\n")
         for line in reader:
             (UserId, WindowId, Split, City, State, Country, ZipCode,
             DegreeType, Major, GraduationDate, WorkHistoryCount,
