@@ -1,3 +1,6 @@
 zip/
 splitjobs/
-jobs.tsv
+
+/dataset/jobs.tsv
+/dataset/popular_jobs.csv
+/dataset/popular_jobs_full.csv
