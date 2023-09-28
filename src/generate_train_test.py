@@ -10,7 +10,7 @@ MIN_TEST_SIZE = 2
 TEST_SIZE = 0.3
 
 ratings_full = pandas.read_csv('./dataset/user_with_negative_ratings_full.csv')
-ratings_full = ratings_full.iloc[:100000]
+# ratings_full = ratings_full.iloc[:100000]
 
 
 unique_user = ratings_full.drop_duplicates(['UserID']).reset_index(drop=True)
