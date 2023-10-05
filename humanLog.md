@@ -1,4 +1,4 @@
-# 4 Octobre
+# 4 Octobre, 2023
 ## History
 1. Trying to find a way for making group recommender system
 2. After looking through the slides looks not as difficult
@@ -13,3 +13,6 @@
         - should also look at cities (easier to become friends if you are closer to...)
         - might also need to look at the degree obtained  
 4. Group evaluation might be more problematic though...
+
+# 5 Octobre, 2023
+1. Giving up on 2-grams. Just use single keywords to group members. Even if that is too difficult then I will just do an exact match then
