@@ -16,3 +16,6 @@
 
 # 5 Octobre, 2023
 1. Giving up on 2-grams. Just use single keywords to group members. Even if that is too difficult then I will just do an exact match then
+2. After talking with the group I am working on generating synthetic groups
+    - finnished the code in the second las ipynb cell
+    - TODO: transfer from ipynb cell to util.py function
