@@ -19,3 +19,7 @@
 2. After talking with the group I am working on generating synthetic groups
     - finnished the code in the second las ipynb cell
     - TODO: transfer from ipynb cell to util.py function
+
+# 6 Octobre, 2023
+1. Finnished 2. from 5th Octobre
+    - additionally set the 

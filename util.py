@@ -6,7 +6,27 @@ from lenskit.algorithms.user_knn import UserUser
 from lenskit.algorithms import user_knn
 from lenskit.algorithms import Recommender
 
-def createGrps(user_data, size, grpNum, seed):
+def createGrps(user_data, size, grpNum, seed = None):
+    """
+    Summary:
+        Break into users by education level. Then break each of these groups by state. 
+        For graduate education level additionally break by major. Then randomly select 
+        education level, state (and major if education level is "graduates"). Using 
+        these values generate a group of <size> users. Generate <grpNum> groups in the 
+        same way and return them.
+    Some assumptions:
+        1. One user can be in multiple groups
+        2. Same state can be selected multiple times
+        3. Same major can be selected multiple times
+        4. Same education level can be selected multiple times
+    Parameters:
+        - user_data - dataframe containing information about all the users
+        - size - number of users per one group
+        - grpNum - number of groups to generate
+        - seed - if you want to generate the same groups (i.e. used to make random generate output same things)
+    Returns:
+        dataframe containing <grpNum> rows. Note that the value in "Users" column is a string (even though it looks like an array)
+    """
     # create empty dataframe for groups
     groups = pd.DataFrame([], columns=["Users"])
 
@@ -36,7 +56,7 @@ def createGrps(user_data, size, grpNum, seed):
     majorLen = len(major_col)
 
     # set randomness seed
-    random.seed(seed)
+    if (seed!=None): random.seed(seed)
     # start generating groups of user ids
     grpCount = 0
     while grpCount < grpNum:
@@ -67,7 +87,7 @@ def createGrps(user_data, size, grpNum, seed):
             working_data = working_data[working_data["State"]==maj]
         
         # select <size> (e.g. 20) random users
-        if (len(working_data)>size-1):
+        if (len(working_data)>size-1): # if working dataset has less than <size> (e.g. 20) number of users then ignore because can't reach desired number of users
             users = selectUsersRand(working_data, size)
             #groups.loc[grpCount] = [users]     # if you want to get dataframe of series instead
             groups.loc[grpCount] = np.array2string(users)
@@ -77,6 +97,10 @@ def createGrps(user_data, size, grpNum, seed):
     return groups
 
 def selectUsersRand(working_data, size):
+    """
+    Select <size> users randomly from <working_data> (i.e. dataframe for users with same education 
+    level, state and major)
+    """
     edited_data = working_data
     cntr = 0
     users = np.array([])
