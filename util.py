@@ -33,7 +33,7 @@ def createGrps(user_data, size, grpNum, seed):
 
     # extract unqiue column of majors 
     major_col = grads_data[["Major"]].drop_duplicates().reset_index(drop=True)
-    majorLen = len(grads_data)
+    majorLen = len(major_col)
 
     # set randomness seed
     random.seed(seed)
@@ -57,32 +57,34 @@ def createGrps(user_data, size, grpNum, seed):
 
         # After selecting one of three large groups split by random state
         rndState = random.randint(0,stateLen-1)
-        stt = state_col.loc[rndState]
+        stt = state_col["State"].loc[rndState]
         working_data = working_data[working_data["State"]==stt]
 
         # Then if graduate group also split by random major
         if grp == 2:
             rndMaj = random.randint(0,majorLen-1)
-            maj = major_col.iloc[rndMaj]
+            maj = major_col["Major"].loc[rndMaj]
             working_data = working_data[working_data["State"]==maj]
         
         # select <size> (e.g. 20) random users
-        users = selectUsersRand(working_data, size)
-        groups[grpCount] = users
-
-        # form next group
-        grpCount+=1
-
+        if (len(working_data)>size-1):
+            users = selectUsersRand(working_data, size)
+            #groups.loc[grpCount] = [users]     # if you want to get dataframe of series instead
+            groups.loc[grpCount] = np.array2string(users)
+            
+            # form next group
+            grpCount+=1
+    return groups
 
 def selectUsersRand(working_data, size):
     edited_data = working_data
     cntr = 0
     users = np.array([])
-    print("Here1")
+    #display(edited_data)
     while cntr < size:
-        id = random.choice(edited_data["UserID"])
-        print("Here2")
-        users.append(id)
-        edited_data = edited_data.drop(edited_data["UserID"]==id)
+        id = random.choice(np.array(edited_data["UserID"]))
+        users = np.append(users, id)
+        edited_data = edited_data[edited_data["UserID"]!=id]
         cntr+=1
+        if(len(edited_data)==0): break
     return users
