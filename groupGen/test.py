@@ -1,5 +1,5 @@
 # check everything works in python functions
-import util
+import groupGen.util
 import random
 import pandas as pd
 import numpy as np

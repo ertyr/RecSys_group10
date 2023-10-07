@@ -32,4 +32,10 @@
     - after training it I need to generate recommendations and their scores for each user
         - then I create a list of all the possible jobs and scores from each user
         - then follows the aggregation strategy that picks top x
-2. Afterwards must follow a step with evaluation, but I think this is a task for someone else
+    - Afterwards must follow a step with evaluation, but I think this is a task for someone else
+2. Started implementation
+    - Implemented the training on full data as well as import of group gen
+    - Ecnounterred stupid python directories non importable problem
+    - Tried to solve, but waste of time
+    - Next time just import a copy of the file needed (util.py)
+    - place timers to solve such problems?
