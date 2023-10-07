@@ -22,4 +22,14 @@
 
 # 6 Octobre, 2023
 1. Finnished 2. from 5th Octobre
-    - additionally set the 
+
+# 7 Octobre, 2023
+1. Thinking about group aggregation
+    - now I have the groups
+    - next what I need is to train the User-User knn on Tine's data
+        - I will need to pick either full dataset or only part of it
+            - This depends on what the "coupled" evaluation is using
+    - after training it I need to generate recommendations and their scores for each user
+        - then I create a list of all the possible jobs and scores from each user
+        - then follows the aggregation strategy that picks top x
+2. Afterwards must follow a step with evaluation, but I think this is a task for someone else
