@@ -37,5 +37,11 @@
     - Implemented the training on full data as well as import of group gen
     - Ecnounterred stupid python directories non importable problem
     - Tried to solve, but waste of time
-    - Next time just import a copy of the file needed (util.py)
-    - place timers to solve such problems?
+        - Next time just import a copy of the file needed (util.py)
+        - place timers to solve such problems?
+
+# 8 Octobre, 2023
+1. Import stupid files I need and see if ipynb works
+    - done
+2. Tried to start making a user-item matrix of ratings
+    - encounterred indexing error problem and wasting lots of time to solve it
