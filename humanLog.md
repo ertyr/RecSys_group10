@@ -23,3 +23,10 @@
 # 6 Octobre, 2023
 1. Finnished 2. from 5th Octobre
     - additionally set the 
+
+# 9 Octobre, 2023
+1. Starting the work on the different synthetic group generator algorithm based on the lectures
+    - General procedure from the slides:
+        - Select member at random 
+        - Select most similar users
+        - Select randomly users above a certain similarity threshold 
