@@ -24,7 +24,7 @@ print()
 
 ## Get the training data and train the user-user collaborative filterring
 # read the data (about applications)
-data = pd.read_csv('dataset/user_with_negative_ratings_full.csv', delimiter=',')
+data = pd.read_csv('user_with_negative_ratings_full.csv', delimiter=',')
 
 # construct dataframe in format (user, item, rating) via column addition
 df_ui = data.rename(columns={"UserID": "user", "JobID": "item", "Rating":"rating"})
@@ -47,21 +47,15 @@ for i, row in groups2.iterrows():
     # create an empty dataframe to store unique jobs of this syn group
     items_grp = pd.DataFrame(columns=["item"])
     # iterate through each user and generate top 10 recommendations
+    db_ind = 0
     for userId in synGrp:
         # generate top 10: (item, score)
         top10 = recsys.recommend(userId, 10)
-        #print(top10["item"]) # looks like this is a series object
-        #print(items_grp.columns)
         # concatenate and drop duplicates to store the jobs
-        #items_grp = (pd.concat([items_grp, top10[["item"]]], axis=1, ignore_index=True)).drop_duplicates()
-        #items_grp = items_grp.join(top10["item"], on="item").drop_duplicates()
-        #items_grp = items_grp.append(pd.DataFrame({'item': top10["item"]}), ignore_index=True)
-        newCol = pd.concat([items_grp["item"], top10["item"]], axis=1, ignore_index=True)
-        items_grp["item"] = newCol
-        print(items_grp)
+        items_grp = (pd.concat([items_grp, top10[["item"]]], axis=0, ignore_index=True)).drop_duplicates()
         # add top 10 with associated user ID
         top10.insert(0, "UserID", np.full((len(top10), 1), userId), True)
-        #print(top10)
-        sys.exit()
+        if (db_ind==2): sys.exit()
+        db_ind+=1
 
 

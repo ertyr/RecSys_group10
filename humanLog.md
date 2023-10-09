@@ -45,3 +45,6 @@
     - done
 2. Tried to start making a user-item matrix of ratings
     - encounterred indexing error problem and wasting lots of time to solve it
+
+# 9 Octobre, 2023
+1. Maybe try to reindex then concatenate?
