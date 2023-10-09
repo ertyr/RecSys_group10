@@ -36,3 +36,10 @@
 2. Spent some time undersntading method from the lab
     - seems to be more or less comprehensible
 3. Will try to copy the parts only relevant for similarity
+4. Pivoting taking insanely long amount of time
+    - t=21m
+    - need to save the damn dataframe
+    - conversion of dataframe to file also taking quiet long
+        - didn't see how long because terminated (will need to rerun everything anyways)
+5. Started working on converting alb's group generator code to my version
+6. I will need to keep Tine's 1 vs -1 because to dropnas I need to replace them by neutral value (i.e. 0) to be able to compute the similarity
