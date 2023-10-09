@@ -3,7 +3,9 @@ from util import createGrps
 import pandas as pd
 import numpy as np
 from lenskit.algorithms import Recommender
+from lenskit.algorithms import Predictor
 from lenskit.algorithms.user_knn import UserUser
+from lenskit import batch
 import sys
 
 
@@ -18,18 +20,15 @@ user_data = pd.read_csv("dataset/users.tsv", sep='\t')
 
 # generate synthetic groups of users and display them
 groups2 = createGrps(user_data, size, grpNum, seed)
-print(groups2)
-print()
 
 
 ## Get the training data and train the user-user collaborative filterring
 # read the data (about applications)
-data = pd.read_csv('user_with_negative_ratings_full.csv', delimiter=',')
+data = pd.read_csv('dataset/user_with_negative_ratings_full.csv', delimiter=',')
 
 # construct dataframe in format (user, item, rating) via column addition
 df_ui = data.rename(columns={"UserID": "user", "JobID": "item", "Rating":"rating"})
 # check data being read properly
-print(df_ui.head(10)) 
 
 # train UserUser collaborative filterring
 user_user = UserUser(10, min_nbrs=3)  # Minimum (3) and maximum (10) number of neighbors to consider
@@ -42,20 +41,13 @@ recsys.fit(df_ui)
 for i, row in groups2.iterrows():
     # get the array of users from the row
     synGrp = row[0]
-    # create empty dataframe for ratings of Users to Items
-    ratings_grp = pd.DataFrame(columns=["UserID", "item", "score"])
     # create an empty dataframe to store unique jobs of this syn group
     items_grp = pd.DataFrame(columns=["item"])
     # iterate through each user and generate top 10 recommendations
     db_ind = 0
-    for userId in synGrp:
-        # generate top 10: (item, score)
-        top10 = recsys.recommend(userId, 10)
-        # concatenate and drop duplicates to store the jobs
-        items_grp = (pd.concat([items_grp, top10[["item"]]], axis=0, ignore_index=True)).drop_duplicates()
-        # add top 10 with associated user ID
-        top10.insert(0, "UserID", np.full((len(top10), 1), userId), True)
-        if (db_ind==2): sys.exit()
-        db_ind+=1
+    # get recommendations for all group members
+    ratings_grp = batch.recommend(recsys, synGrp, None,  n_jobs=1)
+    print(ratings_grp)
+    sys.exit()
 
 
