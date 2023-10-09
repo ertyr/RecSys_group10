@@ -48,3 +48,11 @@
 
 # 9 Octobre, 2023
 1. Maybe try to reindex then concatenate?
+2. Figured out that the problem was concatenating on columns (leading to creation of incomprehensible columns)
+    - instead should have been concatenating on rows
+3. Found out about batch recommendations via lenskit
+    - had difficulty with running multiple processes in parallel hence used n_jobs=1
+4. Started thinking about how to do aggregation:
+    - I am assuming that I would need to use all the possible recommendations for each user (i.e. I can't restrict to top 100 or top 10)
+5. What to do with users that have no recommendations? (prbably because don't have enough neighbours)
+    - for now I will ignore them (i.e. not consider them when aggregating)

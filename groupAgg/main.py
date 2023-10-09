@@ -46,7 +46,7 @@ for i, row in groups2.iterrows():
     # iterate through each user and generate top 10 recommendations
     db_ind = 0
     # get recommendations for all group members
-    ratings_grp = batch.recommend(recsys, synGrp, None,  n_jobs=1)
+    ratings_grp = batch.recommend(recsys, synGrp, n=None,  n_jobs=1)
     print(ratings_grp)
     sys.exit()
 
