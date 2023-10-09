@@ -30,3 +30,9 @@
         - Select member at random 
         - Select most similar users
         - Select randomly users above a certain similarity threshold 
+    - Can try knn from sklearn?
+        - although seems to be possible might be difficult to justify
+        - hence I decided to understnad the method from the lab
+2. Spent some time undersntading method from the lab
+    - seems to be more or less comprehensible
+3. Will try to copy the parts only relevant for similarity
