@@ -14,9 +14,10 @@ def elimNeg(x):
     return x
 
 ## Do the parameter set_up for groupGeneration
-group_size_to_create = 20
+group_size = 20
 group_number = 20
 pathToUserMatrix = "user_matrix_full"
+sim_thrh = 0.8
 
 ## Get the data and elminate Tine's negative ones
 ratings_df = pd.read_csv("dataset/clean/user_ratings_neg_1000_20_20_1.csv") 
@@ -41,6 +42,6 @@ sim_matrix = np.corrcoef(numpy_array) # comoute correlation coefficent matrix
 
 ## Generate groups
 grpGenerator = SimilarGroupsGenerator()
-current_list = grpGenerator.generateGroups(user_id_indexes, user_id_set, sim_matrix, group_sizes_to_create, group_number)
+current_list = grpGenerator.generateGroups(user_id_indexes, user_id_set, sim_matrix, group_size, group_number, sim_thrh)
     
 print(pd.DataFrame.from_records(current_list))

@@ -43,3 +43,7 @@
         - didn't see how long because terminated (will need to rerun everything anyways)
 5. Started working on converting alb's group generator code to my version
 6. I will need to keep Tine's 1 vs -1 because to dropnas I need to replace them by neutral value (i.e. 0) to be able to compute the similarity
+
+# 10 Octobre, 2023
+1. Decided to save big DF via pickle
+2. Modified lab code in util.py to suit my needs

@@ -49,29 +49,28 @@ class SimilarGroupsGenerator(GroupsGenerator):
             selection = random.sample(candidate_ids, 1)
             return selection[0]
 
-    def generateGroups(self, user_id_indexes, user_id_set, similarity_matrix, group_sizes_to_create, group_number_to_create):
+    def generateGroups(self, user_id_indexes, user_id_set, similarity_matrix, group_size, group_number_to_create, sim_thrs):
         groups_list = list()
-        for group_size in group_sizes_to_create:
-            groups_size_list = list()
-            while (len(groups_size_list) < group_number_to_create):
-                group = random.sample(user_id_set, 1)
-                while len(group) < group_size:
-                    new_member = SimilarGroupsGenerator.select_user_for_sim_group(group, similarity_matrix,
-                                                                                  user_id_indexes,
-                                                                                  sim_threshold=cfg.similar_threshold)
-                    if new_member is None:
-                        break
-                    group.append(new_member)
-                if len(group) == group_size:
-                    groups_size_list.append(
-                        {
-                            "group_size": group_size,
-                            "group_similarity": 'similar',
-                            "group_members": group,
-                            "avg_similarity": GroupsGenerator.compute_average_similarity(group, user_id_indexes, similarity_matrix)
-                        }
-                    )
-            groups_list.extend(groups_size_list)
-            print(len(groups_list))
+        groups_size_list = list()
+        while (len(groups_size_list) < group_number_to_create):
+            group = random.sample(user_id_set, 1)
+            while len(group) < group_size:
+                new_member = SimilarGroupsGenerator.select_user_for_sim_group(group, similarity_matrix,
+                                                                                user_id_indexes,
+                                                                                sim_threshold=sim_thrs)
+                if new_member is None:
+                    break
+                group.append(new_member)
+            if len(group) == group_size:
+                groups_size_list.append(
+                    {
+                        "group_size": group_size,
+                        "group_similarity": 'similar',
+                        "group_members": group,
+                        "avg_similarity": GroupsGenerator.compute_average_similarity(group, user_id_indexes, similarity_matrix)
+                    }
+                )
+        groups_list.extend(groups_size_list)
+        print(len(groups_list))
         return groups_list
 
