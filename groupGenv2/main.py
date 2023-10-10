@@ -16,22 +16,19 @@ def elimNeg(x):
 ## Do the parameter set_up for groupGeneration
 group_size = 20
 group_number = 20
-pathToUserMatrix = "user_matrix_full"
+pathToUserMatrix = "groupGenv2/user_matrix_train_pivot_01.pkl"
 sim_thrh = 0.8
 
 ## Get the data and elminate Tine's negative ones
-ratings_df = pd.read_csv("dataset/clean/user_ratings_neg_1000_20_20_1.csv") 
+ratings_df = pd.read_csv("dataset/clean/user_ratings_neg_1000_20_20_1_train.csv") 
  # drop weird column showing up out of nowhere
 ratings_df= ratings_df.drop(columns=['Unnamed: 0'])
-ratings_df["Rating"] = ratings_df["Rating"].apply(lambda x: elimNeg(x))
+ratings_df["Rating"] = ratings_df["Rating"]
 # rename the columns in an appropriate way
 ratings_df = ratings_df.rename(columns={"UserID": "user", "JobID": "item", "Rating": "rating"})
 
 ## Start the pivoting
-if(os.path.isfile(pathToUserMatrix)):
-    user_matrix = pd.read_csv(pathToUserMatrix) 
-else: # taking insanely long
-    user_matrix = ratings_df.pivot_table(columns='item', index='user', values="rating")
+user_matrix = pd.read_pickle(pathToUserMatrix) 
 
 ## Compute the correlation coefficent for every user
 user_id_set = set(ratings_df['user'])
