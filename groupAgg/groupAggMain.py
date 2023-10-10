@@ -1,90 +1,84 @@
 ## import packages
-from util import createGrps
 import pandas as pd
 import numpy as np
-from lenskit.algorithms import Recommender
-from lenskit.algorithms import Predictor
-from lenskit.algorithms.user_knn import UserUser
-from lenskit import batch
-import sys
 
-## Methods
-def cap(x):
-    if x > 1.0:
-        return 1.0
-    elif x < 0.0:
-        return 0.0
-    return x 
+def aggregate(all_ratings, num_pref = 5, strat = None, limit = None):
+    """
+    ### Summary:
+        Aggregate the top results based on group ratings. 
 
+    ### Parameters:
+        - all_ratings: A list of all ratings for the group. Label is the list of members of the group, ratings_grp consists of items, scores, users, and ranks
+        - num_pref: The number of aggregated results / DEFAULT = 5
+        - strat: Aggregation strategy - 'add' = additive / 'mult' = multiplicative / 'misery' = least misery / 'pleasure' = most pleasure / DEFAULT = additive
+        - limit: Limiting the data between 1-0 - 'cap' clipping scores / 'norm' normalize score / 'sig' sigmoid function / DEFAULT = no limit
+    ### Returns:
+        Dataframe with 2 columns Members (list of members in group) and Recommendation (list of top num_pref aggregations)
+    """
 
-## Get the training data and train the user-user collaborative filterring
-# read the data (about applications)
-# TODO: replace by Tine's filter  data
-data = pd.read_csv('dataset/user_ratings_neg_1000_20_20_1.csv', delimiter=',')
+    group_preference = pd.DataFrame(columns=["Members", "Recommendation"])
+    for label, ratings_grp in all_ratings:
+        pref = pd.DataFrame()
 
-# load user data
-user_data = pd.read_csv('dataset/users.tsv', sep='\t')
+        # Perform any other operations or analysis on the DataFrame as needed
+        unique_items = ratings_grp["item"].unique().tolist()
 
-## First get the groups
-# parameters for group generation
-size = 10
-grpNum = 20
-seed = 12345
+        for item in unique_items:
+            job_scores = ratings_grp[ratings_grp["item"] == item]
+            scores = job_scores["score"].tolist()
 
-# generate synthetic groups of users and display them
-groups2 = createGrps(user_data, 10, 10, 12345)
+            if len(scores) > 1:
+                if limit == "cap":
+                    scores = np.clip(scores, 0, 1)
 
-# construct dataframe in format (user, item, rating) via column addition
-df_ui = data.rename(columns={"UserID": "user", "JobID": "item", "Rating":"rating"})
-# check data being read properly
+                elif limit == "sig":
+                    scores = [1 / (1 + np.exp(-x)) for x in scores]
 
-# train UserUser collaborative filterring
-user_user = UserUser(10, min_nbrs=3)  # Minimum (3) and maximum (10) number of neighbors to consider
-recsys = Recommender.adapt(user_user)
-recsys.fit(df_ui)
+                elif limit == "norm":
+                    min_score = min(scores)
+                    max_score = max(scores)
+                    if min_score == max_score:
+                        scores = [0.5] * len(scores)
+                    else:
+                        scores = [
+                            ((score - min_score) / (max_score - min_score))
+                            for score in scores
+                        ]
+                
 
-## Create a User-Item matrix of scores so we can apply one of the aggregation strategies
-# iterate through groups generated
-# pd.set_option('display.max_rows', None)
-all_ratings = []
+            if strat == "add" or strat == None:
+                temp_item_df = pd.DataFrame(
+                    {"Item": [item], "Total_Score": [sum(scores)]}
+                )
 
-## Create a User-Item matrix of scores so we can apply one of the aggregation strategies
-# iterate through groups generated
-for i, row in groups2.iterrows():
-    # get the array of users from the row
-    synGrp = row.iloc[0]
+            elif strat == "mult":
+                product = 1
+                for s in scores:
+                    product *= s
 
-    # get recommendations for all group members
-    ratings_grp = batch.recommend(recsys, synGrp, n=None,  n_jobs=1)
-    
-    # cap the values (x > 1 then 1; x < 0 then 0)
-    # TODO: if you are confident that you can explain the clamping -> go ahead and use it
-    # ratings_grp["score"] = ratings_grp["score"].map(cap)
-    # print(ratings_grp)
-    # TODO: sys.exit only for demonstration to not run through all 20 groups of users
-    all_ratings.append((synGrp, ratings_grp))
+                temp_item_df = pd.DataFrame({"Item": [item], "Total_Score": [product]})
+            elif strat == "misery":
+                temp_item_df = pd.DataFrame(
+                    {"Item": [item], "Total_Score": [min(scores)]}
+                )
 
-num_pref = 5
-group_preference = []
-index = 0
+            elif strat == "pleasure":
+                temp_item_df = pd.DataFrame(
+                    {"Item": [item], "Total_Score": [max(scores)]}
+                )
 
-for label, ratings_grp in all_ratings:
-    pref = []
-    # Print the label to differentiate the DataFrames
-    print("Label:", label)
-    
-    # Access and work with the ratings_grp DataFrame
-    print(ratings_grp)  # Example: Display the first few rows of the DataFrame
-    
-    # Perform any other operations or analysis on the DataFrame as needed
-    unique_items = ratings_grp['item'].unique().tolist()
+            pref = pd.concat([pref, temp_item_df], ignore_index=True)
 
-    for item in unique_items:
-        job_scores = ratings_grp[ratings_grp['item'] == item]
-        print(job_scores)
-        
-        # if len(job_scores) > 1:
-        #     print("Number of job_scores:", len(job_scores))
-        
-    index += 1
-    sys.exit()
+        pref = pref.sort_values(by="Total_Score", ascending=False)
+        pref = pref.head(num_pref)
+
+        top_items = pref["Item"].tolist()
+
+        temp_score_list_df = pd.DataFrame(
+            {"Members": [label], "Recommendation": [top_items]}
+        )
+        group_preference = pd.concat(
+            [group_preference, temp_score_list_df], ignore_index=True
+        )
+
+    return group_preference
