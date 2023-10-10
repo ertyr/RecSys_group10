@@ -35,16 +35,19 @@ def createGrps(user_data, size, grpNum, seed = None):
     # extract high schoolers
     undergrads_data = user_data[user_data["DegreeType"]=="High School"]
     undergrads_data = undergrads_data.reset_index(drop=True).fillna("Not Applicable")
+    display(undergrads_data)
 
     # extract non high schoolers
     grads_data = user_data.fillna("Not Applicable")
     grads_data = grads_data[(grads_data["DegreeType"]!="High School") & (grads_data["DegreeType"]!="Not Applicable")]
     grads_data = grads_data.reset_index(drop=True)
+    display(grads_data)
 
     # extract no education
     noedu_data = user_data.fillna("Not Applicable")
     noedu_data = noedu_data[noedu_data["DegreeType"]=="Not Applicable"]
     noedu_data = noedu_data.reset_index(drop=True)
+    display(noedu_data)
 
     # extract unique column of states
     state_col_0 = noedu_data[["State"]].drop_duplicates().reset_index(drop=True)
