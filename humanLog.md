@@ -50,3 +50,5 @@
 3. Created pickle file
 4. Finnished Lea's request
 5. Create pickel file for train
+6. Weird VSCODE errors fixing themselves -> should have reloaded cache
+7. Finnished the PCC based group generation

@@ -49,7 +49,10 @@ class SimilarGroupsGenerator(GroupsGenerator):
             selection = random.sample(candidate_ids, 1)
             return selection[0]
 
-    def generateGroups(self, user_id_indexes, user_id_set, similarity_matrix, group_size, group_number_to_create, sim_thrs):
+    def generateGroups(self, user_id_indexes, user_id_set, similarity_matrix, group_size, group_number_to_create, sim_thrs, seed=None):
+        if (seed!=None): ## Set random seed if necessary
+            random.seed(seed)
+
         groups_list = list()
         groups_size_list = list()
         while (len(groups_size_list) < group_number_to_create):
