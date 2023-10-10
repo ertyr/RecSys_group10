@@ -48,3 +48,5 @@
 1. Decided to save big DF via pickle
 2. Modified lab code in util.py to suit my needs
 3. Created pickle file
+4. Finnished Lea's request
+5. Create pickel file for train
