@@ -47,3 +47,4 @@
 # 10 Octobre, 2023
 1. Decided to save big DF via pickle
 2. Modified lab code in util.py to suit my needs
+3. Created pickle file
