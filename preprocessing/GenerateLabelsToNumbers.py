@@ -9,6 +9,7 @@ import pandas as pd
 df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
 search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
 
+# Goes over a dictionary with str keys and returns a dictionary with only real values, purpose build to deal with uszipcode outputs
 pattern = re.compile(r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$')
 ignore_keys: tuple[str,...] = ('zipcode', 'zipcode_type','major_city','post_office_city','common_city_list','county','state','lat','lng','timezone','area_code_list',
                                'bounds_west','bounds_east','bounds_north','bounds_south','polygon')
@@ -67,6 +68,7 @@ def dict2Real(dictionary: dict[str, Any]) -> dict[str, numbers.Real]:
                     ans[key] = float(value)
                 case _:
                     print(key,value)
+    return ans
                 
                 
 append: str = "_value"
@@ -77,7 +79,7 @@ def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real | None]:
         z = z.to_dict()
         proto_ans = dict2Real(z)
         for key, value in proto_ans:
-            ans[key+append] = value
+            ans[key+append] = value # TODO deal with
     return ans
         
 
