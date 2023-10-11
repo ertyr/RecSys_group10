@@ -28,6 +28,9 @@ class SimilaritySuperclass(ABC):
         """        
         pass
     
+    def __preProcessDataFrame(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df
+    
     def __init__(self, df: pd.DataFrame, serialized_file_name: str = None) -> None:
         """Constructor for a similarity matrix class
         Args:
@@ -37,6 +40,7 @@ class SimilaritySuperclass(ABC):
             *index_to_ignore (int): each index to ignore, may include index_user_ids
         """        
         super().__init__()
+        df = self.__preProcessDataFrame(df)
         self.user_to_user_similarity: dict[int, dict[int, float]] = {}
         indexes = df.index
         for k in range(len(indexes)):
