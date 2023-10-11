@@ -74,8 +74,6 @@ def dict2Real(dictionary: dict[str, Any]) -> dict[str, numbers.Real]:
                     print("non expected @ dict2Real",key,value)
     return ans
                 
-                
-append: str = "_value"
 def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
     ans: dict[str, numbers.Real] = {}
     if country_code == "US":
@@ -84,8 +82,12 @@ def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
             z = z.to_dict()
             ans = dict2Real(z)
     return ans
-        
 
+def apply_zip_facts(row):
+    d = zip_facts(row['Country'], row['ZipCode'])
+    d['UserID'] = row.name
+    return pd.Series(d)
+        
 degree_type: dict[str,int] = defaultdict(int)
 degree_type.update({"Master's":5, 'High School':1, "Bachelor's":4, 'Vocational':2, "Associate's":3, 'PhD':6})
 currently_employed: dict[str, int] = defaultdict(int)
@@ -94,22 +96,21 @@ managed_others: dict[str, int] = defaultdict(int)
 managed_others.update({'No':1, 'Yes':2})
 
 def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
+    tqdm.pandas()
     ans: pd.DataFrame = users['WindowID'].to_frame()
     ans['Split'] = users['Split']
-    print("zip codes")
-    for index in tqdm(users.index, total=len(users.index)):
-        d = zip_facts(users.at[index, "Country"], users.at[index,"ZipCode"])
-        d["UserID"] = index
-        ans.loc[index, d.keys()] = d.values()
-    ans['DegreeType_value'] = users['DegreeType'].map(degree_type)
+    print('ZipCode')
+    users.progress_apply(lambda row: ans.update(apply_zip_facts(row)), axis=1)
+    print('end ZipCode')
+    ans['DegreeType'] = users['DegreeType'].map(degree_type)
     # TODO 'Major'
-    # TODO 'GraduationDate'
-    ans['WorkHistoryCount_value'] = users['WorkHistoryCount']
-    ans['TotalYearsExperience_value'] = users['TotalYearsExperience']
-    ans['CurrentlyEmployed_value'] = users['CurrentlyEmployed'].map(currently_employed)
-    ans['ManagedOthers_value'] = users['ManagedOthers'].map(managed_others)
-    ans['ManagedHowMany_value'] = users['ManagedHowMany']
+    ans['GraduationDate'] = pd.to_datetime(users['GraduationDate']).astype('int64') // 10**9
+    ans['WorkHistoryCount'] = users['WorkHistoryCount']
+    ans['TotalYearsExperience'] = users['TotalYearsExperience']
+    ans['CurrentlyEmployed'] = users['CurrentlyEmployed'].map(currently_employed)
+    ans['ManagedOthers'] = users['ManagedOthers'].map(managed_others)
+    ans['ManagedHowMany'] = users['ManagedHowMany']
     return ans
         
-
+# 'DegreeType', 'Major'
 print(users_to_vector(df))
