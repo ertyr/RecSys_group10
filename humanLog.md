@@ -94,3 +94,9 @@
     - Figured it out!!!
     - use rank metrics !!! (because when generating recommendations I am not having any scores)
 4. Need to choose which of the ranking recommendations to generate 
+    - Looks like the relevance is calculated by comparing two lists (user_list vs group_rec_list) 
+        - The metric is calculated for a user
+        - Pros and Cons of NDCG:
+            - https://medium.com/swlh/rank-aware-recsys-evaluation-metrics-5191bba16832 
+            - if it cares less about missing items -> what I need
+        
