@@ -3,3 +3,4 @@ splitjobs/
 jobs.tsv
 dataset/popular_jobs_full.csv
 groupGenv2/user_matrix_full_pivot_01.pkl
+groupGenv2/user_matrix_train_pivot_01.pkl
