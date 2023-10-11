@@ -99,4 +99,8 @@
         - Pros and Cons of NDCG:
             - https://medium.com/swlh/rank-aware-recsys-evaluation-metrics-5191bba16832 
             - if it cares less about missing items -> what I need
+5. Looking further at the code in lab 2 for ndcg:
+    - calculates ndcg per user
+    - then calculates min, max and avereage 
+6. Created code hypothesise for grp evaluation  
         
