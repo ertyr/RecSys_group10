@@ -56,3 +56,33 @@
     - I am assuming that I would need to use all the possible recommendations for each user (i.e. I can't restrict to top 100 or top 10)
 5. What to do with users that have no recommendations? (prbably because don't have enough neighbours)
     - for now I will ignore them (i.e. not consider them when aggregating)
+    - additionally set the 
+
+# 9 Octobre, 2023
+1. Starting the work on the different synthetic group generator algorithm based on the lectures
+    - General procedure from the slides:
+        - Select member at random 
+        - Select most similar users
+        - Select randomly users above a certain similarity threshold 
+    - Can try knn from sklearn?
+        - although seems to be possible might be difficult to justify
+        - hence I decided to understnad the method from the lab
+2. Spent some time undersntading method from the lab
+    - seems to be more or less comprehensible
+3. Will try to copy the parts only relevant for similarity
+4. Pivoting taking insanely long amount of time
+    - t=21m
+    - need to save the damn dataframe
+    - conversion of dataframe to file also taking quiet long
+        - didn't see how long because terminated (will need to rerun everything anyways)
+5. Started working on converting alb's group generator code to my version
+6. I will need to keep Tine's 1 vs -1 because to dropnas I need to replace them by neutral value (i.e. 0) to be able to compute the similarity
+
+# 10 Octobre, 2023
+1. Decided to save big DF via pickle
+2. Modified lab code in util.py to suit my needs
+3. Created pickle file
+4. Finnished Lea's request
+5. Create pickel file for train
+6. Weird VSCODE errors fixing themselves -> should have reloaded cache
+7. Finnished the PCC based group generation
