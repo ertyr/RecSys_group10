@@ -3,6 +3,7 @@ import collections
 import numbers
 import re
 from typing import Any
+from tqdm import tqdm
 from uszipcode import SearchEngine
 import pandas as pd
 
@@ -10,8 +11,9 @@ df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
 search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
 
 # Goes over a dictionary with str keys and returns a dictionary with only real values, purpose build to deal with uszipcode outputs
+# 'lat','lng'
 pattern = re.compile(r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$')
-ignore_keys: tuple[str,...] = ('zipcode', 'zipcode_type','major_city','post_office_city','common_city_list','county','state','lat','lng','timezone','area_code_list',
+ignore_keys: tuple[str,...] = ('zipcode', 'zipcode_type','major_city','post_office_city','common_city_list','county','state','timezone','area_code_list',
                                'bounds_west','bounds_east','bounds_north','bounds_south','polygon')
 def dict2Real(dictionary: dict[str, Any]) -> dict[str, numbers.Real]:
     ans: dict[str, numbers.Real] = {}
@@ -64,22 +66,23 @@ def dict2Real(dictionary: dict[str, Any]) -> dict[str, numbers.Real]:
                         if not sub_dict is None:
                             for key2, value2 in sub_dict.items():
                                 ans[key+"_"+key2] = value2
-                case _ if pattern.fullmatch(value):
+                case str() if pattern.fullmatch(value):
                     ans[key] = float(value)
+                case None:
+                    pass
                 case _:
-                    print(key,value)
+                    print("non expected @ dict2Real",key,value)
     return ans
                 
                 
 append: str = "_value"
-def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real | None]:
-    ans: dict[str, numbers.Real | None] = {}
+def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
+    ans: dict[str, numbers.Real] = {}
     if country_code == "US":
         z = search.by_zipcode(zipcode)
-        z = z.to_dict()
-        proto_ans = dict2Real(z)
-        for key, value in proto_ans:
-            ans[key+append] = value # TODO deal with
+        if not z is None:
+            z = z.to_dict()
+            ans = dict2Real(z)
     return ans
         
 
@@ -91,24 +94,22 @@ managed_others: dict[str, int] = defaultdict(int)
 managed_others.update({'No':1, 'Yes':2})
 
 def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
-    # ignore 'WindowID', 'Split'
-    for index in df.index:
-        d = zip_facts(df.at[index, "Country"], df.at[index,"ZipCode"])
+    ans: pd.DataFrame = users['WindowID'].to_frame()
+    ans['Split'] = users['Split']
+    print("zip codes")
+    for index in tqdm(users.index, total=len(users.index)):
+        d = zip_facts(users.at[index, "Country"], users.at[index,"ZipCode"])
         d["UserID"] = index
-        users.append(d)
-    users['DegreeType_value'] = users['DegreeType'].map(degree_type)
+        ans.loc[index, d.keys()] = d.values()
+    ans['DegreeType_value'] = users['DegreeType'].map(degree_type)
     # TODO 'Major'
     # TODO 'GraduationDate'
-    users['WorkHistoryCount_value'] = users['WorkHistoryCount']
-    users['TotalYearsExperience_value'] = users['TotalYearsExperience']
-    users['CurrentlyEmployed_value'] = users['CurrentlyEmployed'].map(currently_employed)
-    users['ManagedOthers_value'] = users['ManagedOthers'].map(managed_others)
-    users['ManagedHowMany_value'] = users['ManagedHowMany']
-    return users
+    ans['WorkHistoryCount_value'] = users['WorkHistoryCount']
+    ans['TotalYearsExperience_value'] = users['TotalYearsExperience']
+    ans['CurrentlyEmployed_value'] = users['CurrentlyEmployed'].map(currently_employed)
+    ans['ManagedOthers_value'] = users['ManagedOthers'].map(managed_others)
+    ans['ManagedHowMany_value'] = users['ManagedHowMany']
+    return ans
         
 
-#print(users_to_vector(df))
-row = df.iloc[1]
-facts = zip_facts(row["Country"], row["ZipCode"])
-for i in range(len(zip_facts)):
-    print(zip_facts[i], facts[i])
+print(users_to_vector(df))
