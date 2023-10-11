@@ -1,7 +1,4 @@
 import numpy as np
-from sklearn import ndcg_score
-from lenskit.algorithms import Recommender
-from lenskit.algorithms.user_knn import UserUser
 import pandas as pd
 
 
@@ -32,7 +29,7 @@ def evaluateUserNDCG(user_ground_truth, group_recommendation):
 
         idcg = 0.0
         # what if intersection is empty?
-        user_ground_truth.sort_values("final_rating", inplace=True, ascending=False)
+        user_ground_truth.sort_values("score", inplace=True, ascending=False)
 
         for k in range(min(len(user_ground_truth), len(group_recommendation))):
             idcg = idcg + (user_ground_truth.iloc[k]["score"] / np.log2(k + 2))
