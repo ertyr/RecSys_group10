@@ -2,7 +2,7 @@ from collections import defaultdict
 import collections
 import numbers
 import re
-from typing import Any
+from typing import Any, Type
 from tqdm import tqdm
 from uszipcode import SearchEngine
 import pandas as pd
@@ -87,23 +87,23 @@ def apply_zip_facts(row):
     d = zip_facts(row['Country'], row['ZipCode'])
     d['UserID'] = row.name
     return pd.Series(d)
-        
+  
 degree_type: dict[str,int] = defaultdict(int)
 degree_type.update({"Master's":5, 'High School':1, "Bachelor's":4, 'Vocational':2, "Associate's":3, 'PhD':6})
 currently_employed: dict[str, int] = defaultdict(int)
 currently_employed.update({'Yes': 2, 'No': 1})
 managed_others: dict[str, int] = defaultdict(int)
 managed_others.update({'No':1, 'Yes':2})
-
 def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
     tqdm.pandas()
     ans: pd.DataFrame = users['WindowID'].to_frame()
     ans['Split'] = users['Split']
     print('ZipCode')
     users.progress_apply(lambda row: ans.update(apply_zip_facts(row)), axis=1)
-    print('end ZipCode')
+    # TODO improve 'DegreeType'
     ans['DegreeType'] = users['DegreeType'].map(degree_type)
     # TODO 'Major'
+    ans['TODO Major'] = users['Major']
     ans['GraduationDate'] = pd.to_datetime(users['GraduationDate']).astype('int64') // 10**9
     ans['WorkHistoryCount'] = users['WorkHistoryCount']
     ans['TotalYearsExperience'] = users['TotalYearsExperience']
@@ -111,6 +111,5 @@ def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
     ans['ManagedOthers'] = users['ManagedOthers'].map(managed_others)
     ans['ManagedHowMany'] = users['ManagedHowMany']
     return ans
-        
-# 'DegreeType', 'Major'
-print(users_to_vector(df))
+
+users_to_vector(df).to_csv('users_as_vectors.csv')
