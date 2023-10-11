@@ -86,3 +86,11 @@
 5. Create pickel file for train
 6. Weird VSCODE errors fixing themselves -> should have reloaded cache
 7. Finnished the PCC based group generation
+
+# 11 Octobre, 2023
+1. Merge with Dominics GroupAgg (works well with PCC group synthetic gen)
+2. Did some stuff for Lea
+3. Was trying to figure out how to do decoupled evaluation
+    - Figured it out!!!
+    - use rank metrics !!! (because when generating recommendations I am not having any scores)
+4. Need to choose which of the ranking recommendations to generate 
