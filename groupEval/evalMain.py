@@ -20,6 +20,8 @@ def groupNDCG(group_members, group_recommendation, recsys):
 
 
 def evaluateUserNDCG(user_ground_truth, group_recommendation):
+        """
+        Looks like ndcg doesn't care about the position and scores in the actual items recommended hence why it outputs large scores close to 1"""
         # note that both dcg and idcg should be element-wise normalized via per_user_propensity_normalization_term
         # therefore, it can be excluded from calculations
         dcg = 0.0
@@ -27,10 +29,11 @@ def evaluateUserNDCG(user_ground_truth, group_recommendation):
         for k, item in enumerate(group_recommendation):
             if (checkIn(user_ground_truth["item"], item)):
                 numerator = (user_ground_truth["score"].loc[user_ground_truth["item"] == item]).iloc[0]
-                dcg = dcg + (numerator)/ (np.log2(k + 2))
+                dcg = dcg + ((numerator) / (np.log2(k + 2)))
             
         idcg = 0.0
-        # what if intersection is empty?
+
+        # sort the values to get highest scores first and then compute the most ideal score possible
         user_ground_truth.sort_values("score", inplace=True, ascending=False)
 
         for k in range(min(len(user_ground_truth), len(group_recommendation))):
