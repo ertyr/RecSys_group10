@@ -9,6 +9,7 @@ def groupNDCG(group_members, group_recommendation, recsys):
     for user in group_members:
         #TODO: user dataframe here to calculate the ground truth
         user_ground_truth = recsys.recommend(user) # dataframe with [item, rating]
+        user_ground_truth = user_ground_truth[user_ground_truth["score"]>0.0]
         ndcg_user = evaluateUserNDCG(user_ground_truth, group_recommendation)
         ndcg_list.append(ndcg_user)
 
