@@ -7,8 +7,9 @@ from typing import Any, Type
 from tqdm import tqdm
 from uszipcode import SearchEngine
 import pandas as pd
+from transformers import BertTokenizer, EncoderDecoderModel
+import torch
 
-df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
 #search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
 
 # Goes over a dictionary with str keys and returns a dictionary with only real values, purpose build to deal with uszipcode outputs
@@ -85,8 +86,8 @@ def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
             ans = dict2Real(z)
     return ans
 
-def apply_zip_facts(row):
-    d = zip_facts(row['Country'], row['ZipCode'])
+def apply_zip_facts(row, zip_code_column_name: str = 'ZipCode'):
+    d = zip_facts(row['Country'], row[zip_code_column_name])
     ans = pd.Series(d).to_frame().T
     ans.index = [row.name]
     return ans
@@ -97,7 +98,7 @@ currently_employed: dict[str, int] = defaultdict(int)
 currently_employed.update({'Yes': 2, 'No': 1})
 managed_others: dict[str, int] = defaultdict(int)
 managed_others.update({'No':1, 'Yes':2})
-def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
+def users_to_vectors(users: pd.DataFrame) -> pd.DataFrame:
     tqdm.pandas()
     ans: pd.DataFrame = users['WindowID'].to_frame()
     ans['Split'] = users['Split']
@@ -122,8 +123,78 @@ def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
     ans['ManagedHowMany'] = users['ManagedHowMany']
     return ans
 
-#df = df.iloc[0:10]
-df = users_to_vector(df)
-print(df)
-filepath = Path('users_as_vectors.csv')
-df.to_csv(filepath)
+def generate_users_as_vectors_csv(limit: int|None = None):
+    df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID', low_memory=False)
+    if not limit is None:
+        df = df.iloc[:limit]
+    df = users_to_vectors(df)
+    filepath = Path('users_as_vectors.csv')
+    df.to_csv(filepath)
+    return df
+    
+# Encodes 'Description' into a fixed size using BERT
+def description_to_data_frame(row):
+    text = row['Description']
+    from transformers import AutoTokenizer, AutoModel
+    import torch
+    def mean_pooling(model_output, attention_mask):
+        token_embeddings = model_output[0] # First element of model_output contains all token embeddings
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+    tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/bert-base-nli-mean-tokens')
+    model = AutoModel.from_pretrained('sentence-transformers/bert-base-nli-mean-tokens')
+    encoded_input = tokenizer(text, padding=True, truncation=True, return_tensors='pt', max_length=512)
+    with torch.no_grad():
+        model_output = model(**encoded_input)
+    embedding = mean_pooling(model_output, encoded_input['attention_mask'])
+    ans = pd.DataFrame(embedding)
+    ans.index = [row.name]
+    return ans
+
+def jobs_to_vectors(jobs: pd.DataFrame) -> pd.DataFrame:
+    tqdm.pandas()
+    ans: pd.DataFrame = jobs['WindowID'].to_frame()
+    print('Zip5')
+    temp = None
+    for i in tqdm(jobs.index):
+        row = jobs.loc[i]
+        if temp is None:
+            temp = apply_zip_facts(row, zip_code_column_name='Zip5')
+        else:
+            temp = pd.concat([temp, apply_zip_facts(row, zip_code_column_name='Zip5')])
+    ans = ans.join(temp, how='inner')
+    print('Description')
+    temp = None
+    for i in tqdm(jobs.index):
+        row = jobs.loc[i]
+        if temp is None:
+            temp = description_to_data_frame(row)
+        else:
+            temp = pd.concat([temp, description_to_data_frame(row)])
+    ans = ans.join(temp, how='inner')
+    return ans
+
+def generate_jobs_as_vectors_csv(limit: int|None = None):
+    df: pd.DataFrame = pd.read_table('dataset/jobs.tsv', index_col='JobID', on_bad_lines='skip', low_memory=False)
+    if not limit is None:
+        df = df.iloc[:limit]
+    df = jobs_to_vectors(df)
+    filepath = Path('jobs_as_vectors.csv')
+    df.to_csv(filepath)
+    return df
+
+
+
+def generate_jobs_and_users_as_vectors_and_train_matrix(jobs_limit: int|None = None, users_limit: int|None = None):
+    jobs: pd.DataFrame = generate_jobs_as_vectors_csv(limit=jobs_limit)
+    users: pd.DataFrame = generate_users_as_vectors_csv(limit=users_limit)
+    applications: pd.DataFrame = pd.read_table('dataset/apps.tsv', low_memory=False)
+    # If a_(u,j) = u * M * j^T, where u is a user, j is a job, a is the estimated application probability.
+    # TODO train LP such that for the training data:
+    # Maximize for all (u,j) in applications s.t.
+    # For all u over all j in same window avg a_(u,j) = 0.5
+    # For all u, for all j, if u and j in same window, 0<=a_(u,j)<=1
+    # No limit on variables 
+    # Note appended to u and to j is the distance of u to j (estimated)
+    
+generate_jobs_and_users_as_vectors_and_train_matrix(jobs_limit=10, users_limit=10)
