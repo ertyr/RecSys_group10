@@ -92,12 +92,14 @@ def apply_zip_facts(row, zip_code_column_name: str = 'ZipCode'):
     ans.index = [row.name]
     return ans
   
-degree_type: dict[str,int] = defaultdict(int)
-degree_type.update({"Master's":5, 'High School':1, "Bachelor's":4, 'Vocational':2, "Associate's":3, 'PhD':6})
-currently_employed: dict[str, int] = defaultdict(int)
-currently_employed.update({'Yes': 2, 'No': 1})
-managed_others: dict[str, int] = defaultdict(int)
-managed_others.update({'No':1, 'Yes':2})
+def series_to_binary_data_frame(series: pd.Series) -> pd.DataFrame:
+    name = series.name
+    values_set = set(series.values)
+    ans = pd.DataFrame(index=series.index)
+    for value in values_set:
+        ans[name+"_"+str(value)] = series.apply(lambda x: 1 if x == value else 0)
+    return ans
+    
 def users_to_vectors(users: pd.DataFrame) -> pd.DataFrame:
     tqdm.pandas()
     ans: pd.DataFrame = users['WindowID'].to_frame()
@@ -111,15 +113,13 @@ def users_to_vectors(users: pd.DataFrame) -> pd.DataFrame:
         else:
             temp = pd.concat([temp, apply_zip_facts(row)])
     ans = ans.join(temp, how='inner')
-    # TODO improve 'DegreeType'
-    ans['DegreeType'] = users['DegreeType'].map(degree_type)
-    # TODO 'Major'
-    ans['TODO Major'] = users['Major']
+    ans = ans.join(series_to_binary_data_frame(users['DegreeType']), how='inner')
+    ans = ans.join(series_to_binary_data_frame(users['Major']), how='inner')
     ans['GraduationDate'] = pd.to_datetime(users['GraduationDate']).astype('int64') // 10**9
     ans['WorkHistoryCount'] = users['WorkHistoryCount']
     ans['TotalYearsExperience'] = users['TotalYearsExperience']
-    ans['CurrentlyEmployed'] = users['CurrentlyEmployed'].map(currently_employed)
-    ans['ManagedOthers'] = users['ManagedOthers'].map(managed_others)
+    ans = ans.join(series_to_binary_data_frame(users['CurrentlyEmployed']), how='inner')
+    ans = ans.join(series_to_binary_data_frame(users['ManagedOthers']), how='inner')
     ans['ManagedHowMany'] = users['ManagedHowMany']
     return ans
 
