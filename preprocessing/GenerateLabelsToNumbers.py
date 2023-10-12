@@ -1,6 +1,7 @@
 from collections import defaultdict
 import collections
 import numbers
+from pathlib import Path
 import re
 from typing import Any, Type
 from tqdm import tqdm
@@ -8,7 +9,7 @@ from uszipcode import SearchEngine
 import pandas as pd
 
 df: pd.DataFrame = pd.read_table('dataset/users.tsv', index_col='UserID')
-search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
+#search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
 
 # Goes over a dictionary with str keys and returns a dictionary with only real values, purpose build to deal with uszipcode outputs
 # 'lat','lng'
@@ -77,6 +78,7 @@ def dict2Real(dictionary: dict[str, Any]) -> dict[str, numbers.Real]:
 def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
     ans: dict[str, numbers.Real] = {}
     if country_code == "US":
+        search = SearchEngine(simple_or_comprehensive=SearchEngine.SimpleOrComprehensiveArgEnum.comprehensive)
         z = search.by_zipcode(zipcode)
         if not z is None:
             z = z.to_dict()
@@ -85,8 +87,9 @@ def zip_facts(country_code: str, zipcode) -> dict[str, numbers.Real]:
 
 def apply_zip_facts(row):
     d = zip_facts(row['Country'], row['ZipCode'])
-    d['UserID'] = row.name
-    return pd.Series(d)
+    ans = pd.Series(d).to_frame().T
+    ans.index = [row.name]
+    return ans
   
 degree_type: dict[str,int] = defaultdict(int)
 degree_type.update({"Master's":5, 'High School':1, "Bachelor's":4, 'Vocational':2, "Associate's":3, 'PhD':6})
@@ -99,7 +102,14 @@ def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
     ans: pd.DataFrame = users['WindowID'].to_frame()
     ans['Split'] = users['Split']
     print('ZipCode')
-    users.progress_apply(lambda row: ans.update(apply_zip_facts(row)), axis=1)
+    temp = None
+    for i in tqdm(users.index):
+        row = users.loc[i]
+        if temp is None:
+            temp = apply_zip_facts(row)
+        else:
+            temp = pd.concat([temp, apply_zip_facts(row)])
+    ans = ans.join(temp, how='inner')
     # TODO improve 'DegreeType'
     ans['DegreeType'] = users['DegreeType'].map(degree_type)
     # TODO 'Major'
@@ -112,4 +122,8 @@ def users_to_vector(users: pd.DataFrame) -> pd.DataFrame:
     ans['ManagedHowMany'] = users['ManagedHowMany']
     return ans
 
-users_to_vector(df).to_csv('users_as_vectors.csv')
+#df = df.iloc[0:10]
+df = users_to_vector(df)
+print(df)
+filepath = Path('users_as_vectors.csv')
+df.to_csv(filepath)
