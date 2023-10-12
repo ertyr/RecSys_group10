@@ -11,7 +11,7 @@ from evalMain import groupNDCG
 
 ## Train the individual rec.sys.
 # get the data
-data = pd.read_csv('dataset/clean/user_ratings_neg_1000_20_20_1_train.csv', delimiter=',')
+data = pd.read_csv('dataset/clean/user_ratings_neg_1000_20_20_1.csv', delimiter=',')
 data = data.drop(columns=['Unnamed: 0'])
 
 # construct dataframe in format (user, item, rating) via column addition

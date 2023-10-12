@@ -9,7 +9,6 @@ def groupNDCG(group_members, group_recommendation, recsys):
     for user in group_members:
         #TODO: user dataframe here to calculate the ground truth
         user_ground_truth = recsys.recommend(user) # dataframe with [item, rating]
-
         ndcg_user = evaluateUserNDCG(user_ground_truth, group_recommendation)
         ndcg_list.append(ndcg_user)
 
@@ -26,8 +25,10 @@ def evaluateUserNDCG(user_ground_truth, group_recommendation):
         dcg = 0.0
 
         for k, item in enumerate(group_recommendation):
-            dcg = dcg + ((user_ground_truth["score"].loc[user_ground_truth["item"] == item] if item in user_ground_truth.index else 0.0) / np.log2(k + 2))
-
+            if (checkIn(user_ground_truth["item"], item)):
+                numerator = (user_ground_truth["score"].loc[user_ground_truth["item"] == item]).iloc[0]
+                dcg = dcg + (numerator)/ (np.log2(k + 2))
+            
         idcg = 0.0
         # what if intersection is empty?
         user_ground_truth.sort_values("score", inplace=True, ascending=False)
@@ -38,5 +39,11 @@ def evaluateUserNDCG(user_ground_truth, group_recommendation):
             ndcg = dcg / idcg
         else:
             ndcg = 0.0
-
         return ndcg
+
+def checkIn(series, checkNum):
+    for num in series:
+        if num == checkNum:
+            return True
+    return False
+
