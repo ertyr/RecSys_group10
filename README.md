@@ -12,6 +12,11 @@ How to run the code:
 4. To see generation of explanations and data pre-processing see:
     - explanation.ipynb (explanations)
     - see src directory
+## Questionnaire links
+Group Survey: https://maastrichtuniversity.eu.qualtrics.com/jfe/form/SV_006uKXplK4dbwR8  AND  
+    https://maastrichtuniversity.eu.qualtrics.com/jfe/form/SV_6haeSrAwEWrjIIC
+Individual surveys: https://maastrichtuniversity.eu.qualtrics.com/jfe/form/SV_2tx9UV5JwnQVy74 AND
+     https://maastrichtuniversity.eu.qualtrics.com/jfe/form/SV_6ifn9nzWDmDj0PA
 
 
 ## Questions for monday
