@@ -9,11 +9,10 @@ Takes about a minute to run.
 import csv
 from collections import defaultdict as ddict
 
-wd = "dataset/" # The directory that the data files are in
 
 print("Recording job locations...")
 job_info = {}
-with open(wd + "jobs.tsv", "r") as infile:
+with open("dataset/splitjobs/jobs.tsv", "r") as infile:
     reader = csv.reader(infile, delimiter="\t", 
     quoting=csv.QUOTE_NONE, quotechar="")
     next(reader) # burn the header
@@ -24,7 +23,7 @@ with open(wd + "jobs.tsv", "r") as infile:
         # The terminal zero is for an application count
 
 print("Counting applications...")
-with open(wd + "apps.tsv") as infile:
+with open("dataset/apps.tsv") as infile:
     reader = csv.reader(infile, delimiter="\t")
     next(reader) # burn the header
     for line in reader:
@@ -47,7 +46,7 @@ for window in [1, 2, 3, 4, 5, 6, 7]:
         top_state_jobs[window][state].reverse()
 
 print("Making predictions...")
-with open(wd + "users.tsv", "r") as infile:
+with open("dataset/users.tsv", "r") as infile:
     reader = csv.reader(infile, delimiter="\t", 
     quoting=csv.QUOTE_NONE, quotechar="")
     next(reader) # burn the header
