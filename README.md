@@ -1,18 +1,17 @@
 # RecSys_group5
 Recommendation Systems group 5, third year bachelor's project Maastricht University
 
-KNN collaborative filtering users.  
-
-1. Pre-processing: in agreement with recommender. Pepijn.  
-2. Recommender: KNN similarity (Pearson correlation), prediction function, K (validation split). Dominic  Weronika.  
-3. Generate explanation: user based, x out of y users (similar to you) sharing feature z liked/applied too this job. Kirill.  
-4. Evaluate recommender. Tine & Lea.
-5. Shared document monday. Lea.
-
-Next:
-
-1. Group maker and aggression recommender: Random groups.
-2. Evaluate explanations.
+How to run the code:
+1. If you want to run evaluation on individual recommeder systems see:
+    - individual_rec/individual_rec_eval_pop.ipynb (Popular Jobs)
+    - individual_rec/individual_rec_eval.ipynb (UserUser collaborative filterring)
+2. If you want to see group aggregation see:
+    - groupAgg/groupAggregation.ipynb 
+3. If you want to evaluate group aggregation (decoupled evalutation):
+    - groupEval/eval.ipynb (aggregation vs least misery)
+4. To see generation of explanations and data pre-processing see:
+    - explanation.ipynb (explanations)
+    - see src directory
 
 
 ## Questions for monday
